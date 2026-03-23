@@ -223,8 +223,9 @@ def en_bpcs(cover_filename, secret_filename, output_file):
 
     # open secret file
     secret_bin = file_hex_to_bin(secret_filename) 
+    secret_length = len(secret_bin)
 
-    print("opened secret file, length", len(secret_bin))
+    print("opened secret file, length", secret_length)
 
     ## embedding 
     block_counter = 0 
@@ -297,8 +298,18 @@ def en_bpcs(cover_filename, secret_filename, output_file):
             break    
 
     #embed info 
-    info_string = dec_to_bin(block_counter)
-    info_string = "0"*(63-len(info_string)) + info_string
+    last_block_bits = secret_length % 63 
+    if last_block_bits == 0: 
+        last_block_bits = 63 
+
+    block_counter_bin = dec_to_bin(block_counter)
+    block_counter_bin = "0"*(32-len(block_counter_bin)) + block_counter_bin
+
+    last_block_bits_bin = dec_to_bin(last_block_bits)
+    last_block_bits_bin = "0"*(31-len(last_block_bits_bin)) + last_block_bits_bin
+
+    info_string = block_counter_bin + last_block_bits_bin
+    
     # print("info block at",block1_coords, info_colour)
     # print(info_string)
 
@@ -421,9 +432,9 @@ def de_bpcs(image_file, output_file):
                     if block_counter != 1:
                         secret = secret + bit_string
                     else:
-                        while bit_string[0] == "0":
-                            bit_string = bit_string[1:]
-                        total_blocks = bin_to_dec(bit_string)
+                        total_blocks = bin_to_dec(bit_string[:32])       # first 32 bits = block count
+                        last_block_bits = bin_to_dec(bit_string[32:63])  # next 31 bits = valid bits in last block
+
                         # print("red",i,j,k,"total blocks",total_blocks)   
 
                     if block_counter == total_blocks:
@@ -441,9 +452,8 @@ def de_bpcs(image_file, output_file):
                     if block_counter != 1:
                         secret = secret + bit_string
                     else:
-                        while bit_string[0] == "0":
-                            bit_string = bit_string[1:]
-                        total_blocks = bin_to_dec(bit_string)
+                        total_blocks = bin_to_dec(bit_string[:32])    
+                        last_block_bits = bin_to_dec(bit_string[32:63]) 
                         # print("green",i,j,k,"total blocks",total_blocks)
                     
                     if block_counter == total_blocks:
@@ -461,9 +471,8 @@ def de_bpcs(image_file, output_file):
                     if block_counter != 1:
                         secret = secret + bit_string
                     else:
-                        while bit_string[0] == "0":
-                            bit_string = bit_string[1:]
-                        total_blocks = bin_to_dec(bit_string)
+                        total_blocks = bin_to_dec(bit_string[:32])    
+                        last_block_bits = bin_to_dec(bit_string[32:63]) 
                         # print("blue",i,j,k,"total blocks",total_blocks)
 
                     if block_counter == total_blocks:
@@ -476,6 +485,10 @@ def de_bpcs(image_file, output_file):
                 break          
         if end == True: 
             break  
+
+    # trim padding 
+    full_blocks_bits = (total_blocks - 2) * 63  # total blocks minus info block and last block
+    secret = secret[:full_blocks_bits + last_block_bits]
 
     secret_bin = bitstring_to_bytes(secret)
 
