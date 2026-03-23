@@ -501,7 +501,7 @@ def de_bpcs(image_file: str, output_file: str) -> tuple[str, str]:
         output_file.close()
         print("extraction complete")
 
-        return "de_bpcs_output"+filetype
+        return "de_bpcs_output"+filetype, ""
     except Exception as e: 
         return "", f"Error: could not write output file — {e}"
 
