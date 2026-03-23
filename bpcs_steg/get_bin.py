@@ -1,4 +1,4 @@
-def file_hex_to_bin(filename):
+def file_hex_to_bin(filename: str) -> str:
 
     f = open(filename, "rb")
     myfile = f.read()
@@ -9,16 +9,16 @@ def file_hex_to_bin(filename):
 
     return mystring 
 
-def dec_to_bin(num):
+def dec_to_bin(num: int) -> str:
     bin_num = "{:08b}".format(num) #formats as an 8bit binary number with 0 padding to the left
     return bin_num 
 
-def bin_to_dec(bstring):
+def bin_to_dec(bstring: str) -> int:
     dec_num = int(bstring, 2)
     return dec_num
 
 
-def bitstring_to_bytes(s):
+def bitstring_to_bytes(s: str) -> bytes:
     if (len(s)%8) != 0:
         s = s + (8-(len(s)%8))*"0"
 
