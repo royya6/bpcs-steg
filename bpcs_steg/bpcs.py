@@ -2,9 +2,8 @@ import os
 from PIL import Image 
 import numpy as np
 
-from bpcs_steg.get_bin import *
+from bpcs_steg.get_bin import * 
 from bpcs_steg.fileType import *
-
 
 ### constants 
 THRESHOLD = 0.3 #threshold to determine a block as complex 
@@ -54,7 +53,7 @@ def pbc_to_cgc(arr, height, width):
             else:
                 cgc_arr[i][j] = np.logical_xor(arr[i][j], arr[i][j-1]) #XOR each row with the previous row
 
-    print("converted to cgc")
+    # print("converted to cgc")
 
     return cgc_arr
 
@@ -70,7 +69,7 @@ def cgc_to_pbc(arr, height, width):
             else: 
                 pbc_arr[i][j] = np.logical_xor(arr[i][j], pbc_arr[i][j-1]) #XOR each row of the cgc array with the previous row of the PBC array
 
-    print("converted to pbc")
+    # print("converted to pbc")
 
     return pbc_arr
 
@@ -193,7 +192,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
     arr_blue = np.array(img.getchannel(2))
 
     #change dec to bin 
-    print('Slicing image...')
+    print('slicing image...')
     print("height",height, "width",width)
     binArr_red  = np.zeros( (8, height, width), dtype = 'uint8' ) #create 3d array filled with 0s in size of img
     binArr_green  = np.zeros( (8, height, width), dtype = 'uint8' )
@@ -215,7 +214,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
     
     del arr_red, arr_green, arr_blue
    
-    print('Sliced image.')
+    print('sliced image.')
 
     # transform planes PBC to CGC
     cgc_red = pbc_to_cgc(binArr_red, height, width)
@@ -253,7 +252,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
                         info_colour="red"
 
                     if len(secret_bin)==0:
-                        print("finished embedding at",i,j,"bit layer",k,info_colour)
+                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
                         end = True 
 
                 ##GREEN
@@ -270,7 +269,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
                         info_colour="green"
 
                     if len(secret_bin)==0:
-                        print("finished embedding at",i,j,"bit layer",k,info_colour)
+                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
                         end = True 
 
                 ##BLUE
@@ -287,7 +286,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
                         info_colour="blue"
 
                     if len(secret_bin)==0:
-                        print("finished embedding at",i,j,"bit layer",k,info_colour)
+                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
                         end = True 
 
                 if end == True: 
@@ -300,8 +299,8 @@ def en_bpcs(cover_filename, secret_filename, output_file):
     #embed info 
     info_string = dec_to_bin(block_counter)
     info_string = "0"*(63-len(info_string)) + info_string
-    print("info block at",block1_coords, info_colour)
-    print(info_string)
+    # print("info block at",block1_coords, info_colour)
+    # print(info_string)
 
     if info_colour=="red":
         cgc_red, info_string = embed_data(cgc_red, info_string, block1_coords[0],block1_coords[1],block1_coords[2])
@@ -371,7 +370,7 @@ def de_bpcs(image_file, output_file):
     arr_blue = np.array(img.getchannel(2))
 
     #change dec to bin 
-    print('Slicing image...')
+    print('slicing image...')
     print("height",height, "width",width)
     binArr_red  = np.zeros( (8, height, width), dtype = 'uint8' ) #create 3d array filled with 0s in size of img
     binArr_green  = np.zeros( (8, height, width), dtype = 'uint8' )
@@ -393,7 +392,7 @@ def de_bpcs(image_file, output_file):
 
     del arr_red, arr_green, arr_blue
 
-    print('Sliced image.')
+    print('sliced image.')
 
     # transform planes PBC to CGC
     cgc_red = pbc_to_cgc(binArr_red, height, width)
@@ -425,10 +424,10 @@ def de_bpcs(image_file, output_file):
                         while bit_string[0] == "0":
                             bit_string = bit_string[1:]
                         total_blocks = bin_to_dec(bit_string)
-                        print("red",i,j,k,"total blocks",total_blocks)   
+                        # print("red",i,j,k,"total blocks",total_blocks)   
 
                     if block_counter == total_blocks:
-                        print("finished extracting at",i,j,"bit layer",k)
+                        # print("finished extracting at",i,j,"bit layer",k)
                         end = True 
 
                 # green
@@ -445,10 +444,10 @@ def de_bpcs(image_file, output_file):
                         while bit_string[0] == "0":
                             bit_string = bit_string[1:]
                         total_blocks = bin_to_dec(bit_string)
-                        print("green",i,j,k,"total blocks",total_blocks)
+                        # print("green",i,j,k,"total blocks",total_blocks)
                     
                     if block_counter == total_blocks:
-                        print("finished extracting at",i,j,"bit layer",k)
+                        # print("finished extracting at",i,j,"bit layer",k)
                         end = True 
 
                 # blue
@@ -465,10 +464,10 @@ def de_bpcs(image_file, output_file):
                         while bit_string[0] == "0":
                             bit_string = bit_string[1:]
                         total_blocks = bin_to_dec(bit_string)
-                        print("blue",i,j,k,"total blocks",total_blocks)
+                        # print("blue",i,j,k,"total blocks",total_blocks)
 
                     if block_counter == total_blocks:
-                        print("finished extracting at",i,j,"bit layer",k)
+                        # print("finished extracting at",i,j,"bit layer",k)
                         end = True 
 
                 if end == True: 

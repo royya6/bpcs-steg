@@ -1,4 +1,4 @@
-from get_bin import * 
+from bpcs_steg.get_bin import * 
 
 def sub_bits(r, g, b, secret_bin, bits):
 
