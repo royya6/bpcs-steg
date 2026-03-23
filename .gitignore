@@ -10,9 +10,22 @@ venv/
 # VS Code settings
 .vscode/
 
-# Temp files your app creates
+# Temp file
 bpcs_file
 
-# Test images (optional - remove these lines if you want to commit them)
-*.jpg
+# Output files created by the app
 *.png
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.zip
+*.mp3
+*.jpg
+
+# except sample images
+!samples/*.jpg
+!samples/*.png
