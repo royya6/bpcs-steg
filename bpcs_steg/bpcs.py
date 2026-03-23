@@ -382,10 +382,9 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
 
 
 
-def de_bpcs(image_file: str, output_file: str) -> str:
+def de_bpcs(image_file: str, output_file: str) -> tuple[str, str]:
     # open cover image file 
     print("decoding bpcs...")
-    Error = False 
     ErrorMessage = ""
 
     #open file
@@ -394,8 +393,7 @@ def de_bpcs(image_file: str, output_file: str) -> str:
         img = temp_img.convert('RGB')
     except:
         ErrorMessage = "Error with file, make sure an image file is selected"   
-        Error = True  
-        return Error, ErrorMessage
+        return "", ErrorMessage
 
     #save any image to png
     if temp_img.format != "PNG":
