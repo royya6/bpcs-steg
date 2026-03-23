@@ -235,10 +235,9 @@ def de_process_channel(
 
 ### MAIN FUNCTIONS ### 
 
-def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None:
+def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> tuple[str, str]:
     # open cover image file 
     print("encoding bpcs...")
-    Error = False 
     ErrorMessage = ""
 
     #open file
@@ -247,8 +246,7 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
         img = temp_img.convert('RGB')
     except:
         ErrorMessage = "Error with file, make sure an image file is selected"   
-        Error = True  
-        return Error, ErrorMessage
+        return "", ErrorMessage
 
     #save any image to png
     if temp_img.format != "PNG":
@@ -378,6 +376,8 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
     img_output.save(output_file+".png")
 
     print("output image saved")
+
+    return "", ""
 
 
 
