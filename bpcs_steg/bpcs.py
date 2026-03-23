@@ -1,6 +1,7 @@
 import os
 from PIL import Image 
 import numpy as np
+from numpy.typing import NDArray
 
 from bpcs_steg.get_bin import * 
 from bpcs_steg.fileType import *
@@ -11,7 +12,7 @@ THRESHOLD = 0.3 #threshold to determine a block as complex
 ### small functions ###
 
 # segment data into 8x8 blocks
-def get_8x8_secret(secret_bin): #turns secret into 8x8 array 
+def get_8x8_secret(secret_bin: str) -> tuple[NDArray, str]: 
     temp = "0" # flag 0 = not conjugated, 1 = conjugated 
 
     #get 63 bits of secret data - first bit is saved as conjugation flag 
@@ -32,8 +33,8 @@ def get_8x8_secret(secret_bin): #turns secret into 8x8 array
 
     return secret_8x8, secret_bin
 
-
-def get_8x8_image(arr, startY, startX, bit): #gets 8x8 block from image array 
+# get 8x8 block from image array 
+def get_8x8_image(arr: NDArray, startY: int, startX: int, bit: int) -> NDArray: 
     image_8x8 = np.zeros((8,8), dtype='uint8') #create an 8x8 array
     for i in range(startY, startY+8): #copies 8x8 section of bitplane into array
         for j in range(startX, startX+8):
@@ -43,7 +44,7 @@ def get_8x8_image(arr, startY, startX, bit): #gets 8x8 block from image array
 
 
 # convert PBC to CGC
-def pbc_to_cgc(arr, height, width):
+def pbc_to_cgc(arr: NDArray, height: int, width: int) -> NDArray:
 
     cgc_arr = np.zeros((8,height, width), dtype='uint8')
     for i in range(8): #for each of the bitplanes 
@@ -59,7 +60,7 @@ def pbc_to_cgc(arr, height, width):
 
 
 # convert CGC to PBC 
-def cgc_to_pbc(arr, height, width):
+def cgc_to_pbc(arr: NDArray, height: int, width: int) -> NDArray:
 
     pbc_arr = np.zeros((8, height, width), dtype='uint8')
     for i in range(8): #for each of the bitplanes
@@ -75,7 +76,7 @@ def cgc_to_pbc(arr, height, width):
 
 
 # determine complexity of 2d block 
-def complexity(arr, height, width):
+def complexity(arr: NDArray, height: int, width: int) -> float:
 
     # max complexity = (rows-1)*cols + (cols-1)*rows
     max_complexity = float((height-1)*width + (width-1)*height)
@@ -102,7 +103,7 @@ def complexity(arr, height, width):
 
 
 # conjugate block 
-def conjugate(block):
+def conjugate(block: NDArray) -> NDArray:
     # wc = checkerboard with 0 in upper left - has maximum complexity for 8x8 block
     wc = np.array([[0,1,0,1,0,1,0,1],
                   [1,0,1,0,1,0,1,0],
@@ -125,14 +126,26 @@ def conjugate(block):
 
 
 # replace block data 
-def block_replace(arr, startY, startX, bit, secret_block):
+def block_replace(
+        arr: NDArray, 
+        startY: int, 
+        startX: int, 
+        bit: int, 
+        secret_block: NDArray
+    ) -> NDArray:
+
     for i in range(startY, startY+8):
         for j in range(startX, startX+8):
             arr[bit,i,j] = secret_block[i%8][j%8] 
     return arr 
 
 
-def embed_data(arr, secret_bin, i, j, k):
+def embed_data(
+        arr: NDArray, 
+        secret_bin: str, 
+        i: int, j: int, k: int
+    ) -> tuple[NDArray, str]: 
+
     # create 8x8 array from secret bin 
     secret_block, secret_bin = get_8x8_secret(secret_bin)
 
@@ -146,7 +159,7 @@ def embed_data(arr, secret_bin, i, j, k):
     return arr, secret_bin
 
 
-def extract_data(image_8x8,):
+def extract_data(image_8x8: NDArray) -> str:
     extracted_bin = ""
 
     if image_8x8[0,0]==1: #look for flag 
@@ -163,7 +176,7 @@ def extract_data(image_8x8,):
 
 
 
-def en_bpcs(cover_filename, secret_filename, output_file):
+def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None:
     # open cover image file 
     print("encoding bpcs...")
     Error = False 
@@ -352,7 +365,7 @@ def en_bpcs(cover_filename, secret_filename, output_file):
 
 
 
-def de_bpcs(image_file, output_file):
+def de_bpcs(image_file: str, output_file: str) -> str:
     # open cover image file 
     print("decoding bpcs...")
     Error = False 
