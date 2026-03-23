@@ -174,6 +174,34 @@ def extract_data(image_8x8: NDArray) -> str:
     return extracted_bin[1:] #removes flag bit 
 
 
+def en_process_channel(
+    arr: NDArray,
+    secret_bin: str,
+    block_counter: int,
+    block1_coords: list,
+    info_colour: str,
+    colour_name: str,
+    i: int, j: int, k: int
+) -> tuple[NDArray, str, int, list, str, bool]:
+
+    end = False
+    block = get_8x8_image(arr, i, j, k)
+    alpha = complexity(block, 8, 8)
+
+    if (alpha >= THRESHOLD) and (len(secret_bin) > 0):
+        block_counter += 1
+        if block_counter != 1:
+            arr, secret_bin = embed_data(arr, secret_bin, i, j, k)
+        else:
+            block1_coords = [i, j, k]
+            info_colour = colour_name
+
+        if len(secret_bin) == 0:
+            end = True
+
+    return arr, secret_bin, block_counter, block1_coords, info_colour, end
+
+
 
 
 def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None:
@@ -251,57 +279,16 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
         for i in range(0, height-(8+height%8), 8):
             for j in range(0, width-(8+width%8), 8):
 
-                ##RED
-                # check if image block is complex 
-                block = get_8x8_image(cgc_red, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD) and (len(secret_bin)>0): #threshold for complexity 
-                    block_counter += 1
-
-                    if block_counter != 1: # first noisy region: leave blank and flag area to return to later and embed details
-                        cgc_red, secret_bin = embed_data(cgc_red, secret_bin, i, j, k)
-                    else: 
-                        block1_coords=[i,j,k]
-                        info_colour="red"
-
-                    if len(secret_bin)==0:
-                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
-                        end = True 
-
-                ##GREEN
-                # check if image block is complex 
-                block = get_8x8_image(cgc_green, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD) and (len(secret_bin)>0): #threshold for complexity 
-                    block_counter += 1
-                    if block_counter != 1: # first noisy region: leave blank and flag area to return to later and embed details
-                        cgc_green, secret_bin = embed_data(cgc_green, secret_bin, i, j, k)
-                    else: 
-                        block1_coords=[i,j,k]
-                        info_colour="green"
-
-                    if len(secret_bin)==0:
-                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
-                        end = True 
-
-                ##BLUE
-                # check if image block is complex 
-                block = get_8x8_image(cgc_blue, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD) and (len(secret_bin)>0): #threshold for complexity 
-                    block_counter += 1
-                    if block_counter != 1: # first noisy region: leave blank and flag area to return to later and embed details
-                        cgc_blue, secret_bin = embed_data(cgc_blue, secret_bin, i, j, k)
-                    else: 
-                        block1_coords=[i,j,k]
-                        info_colour="blue"
-
-                    if len(secret_bin)==0:
-                        # print("finished embedding at",i,j,"bit layer",k,info_colour)
-                        end = True 
+                for arr, colour_name in [
+                (cgc_red, "red"),
+                (cgc_green, "green"),
+                (cgc_blue, "blue")
+                ]:
+                    arr, secret_bin, block_counter, block1_coords, info_colour, end = en_process_channel(
+                        arr, secret_bin, block_counter,
+                        block1_coords, info_colour, colour_name,
+                        i, j, k
+                    )
 
                 if end == True: 
                     break        
