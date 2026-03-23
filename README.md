@@ -20,7 +20,7 @@ python cli.py encode <cover_image> <secret_file> <output_name>
 ```
 
 ```bash
-python cli.py encode cover.jpg secret.pdf stego_output
+python cli.py encode samples/warholicon1.jpg samples/SecretMessage.pdf stego_output
 ```
 saves stego_output.png to the current directory
 
