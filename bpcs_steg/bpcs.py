@@ -9,7 +9,7 @@ from bpcs_steg.fileType import *
 ### constants 
 THRESHOLD = 0.3 #threshold to determine a block as complex 
 
-### small functions ###
+### helpers ###
 
 # segment data into 8x8 blocks
 def get_8x8_secret(secret_bin: str) -> tuple[NDArray, str]: 
@@ -202,7 +202,38 @@ def en_process_channel(
     return arr, secret_bin, block_counter, block1_coords, info_colour, end
 
 
+def de_process_channel(
+    arr: NDArray,
+    secret: str,
+    block_counter: int,
+    total_blocks: int,
+    last_block_bits: int,
+    colour_name: str,
+    i: int,
+    j: int,
+    k: int
+) -> tuple[str, int, int, int, bool]:
 
+    end = False
+    block = get_8x8_image(arr, i, j, k)
+    alpha = complexity(block, 8, 8)
+
+    if (alpha >= THRESHOLD):
+        block_counter += 1
+        bit_string = extract_data(block)
+        if block_counter != 1:
+            secret = secret + bit_string
+        else:
+            total_blocks = bin_to_dec(bit_string[:32])
+            last_block_bits = bin_to_dec(bit_string[32:63])
+
+        if block_counter == total_blocks:
+            end = True
+
+    return secret, block_counter, total_blocks, last_block_bits, end
+
+
+### MAIN FUNCTIONS ### 
 
 def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None:
     # open cover image file 
@@ -285,9 +316,8 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
                 (cgc_blue, "blue")
                 ]:
                     arr, secret_bin, block_counter, block1_coords, info_colour, end = en_process_channel(
-                        arr, secret_bin, block_counter,
-                        block1_coords, info_colour, colour_name,
-                        i, j, k
+                    arr, secret_bin, block_counter, block1_coords, info_colour, 
+                    colour_name, i, j, k
                     )
 
                 if end == True: 
@@ -413,6 +443,7 @@ def de_bpcs(image_file: str, output_file: str) -> str:
     ## extracting
     block_counter = 0
     total_blocks = 0 
+    last_block_bits = 0
     end = False
     secret=""
 
@@ -421,63 +452,15 @@ def de_bpcs(image_file: str, output_file: str) -> str:
         for i in range(0, height-(8+height%8), 8):
             for j in range(0, width-(8+width%8), 8):
 
-                # red
-                # check if image block is complex 
-                block = get_8x8_image(cgc_red, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD):
-                    block_counter+=1
-                    bit_string = extract_data(block) #data in block as string of data
-                    if block_counter != 1:
-                        secret = secret + bit_string
-                    else:
-                        total_blocks = bin_to_dec(bit_string[:32])       # first 32 bits = block count
-                        last_block_bits = bin_to_dec(bit_string[32:63])  # next 31 bits = valid bits in last block
-
-                        # print("red",i,j,k,"total blocks",total_blocks)   
-
-                    if block_counter == total_blocks:
-                        # print("finished extracting at",i,j,"bit layer",k)
-                        end = True 
-
-                # green
-                # check if image block is complex 
-                block = get_8x8_image(cgc_green, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD):
-                    block_counter+=1
-                    bit_string = extract_data(block) #data in block as string of data
-                    if block_counter != 1:
-                        secret = secret + bit_string
-                    else:
-                        total_blocks = bin_to_dec(bit_string[:32])    
-                        last_block_bits = bin_to_dec(bit_string[32:63]) 
-                        # print("green",i,j,k,"total blocks",total_blocks)
-                    
-                    if block_counter == total_blocks:
-                        # print("finished extracting at",i,j,"bit layer",k)
-                        end = True 
-
-                # blue
-                # check if image block is complex 
-                block = get_8x8_image(cgc_blue, i, j, k)
-                alpha = complexity(block, 8, 8)
-
-                if (alpha>=THRESHOLD):
-                    block_counter+=1
-                    bit_string = extract_data(block) #data in block as string of data
-                    if block_counter != 1:
-                        secret = secret + bit_string
-                    else:
-                        total_blocks = bin_to_dec(bit_string[:32])    
-                        last_block_bits = bin_to_dec(bit_string[32:63]) 
-                        # print("blue",i,j,k,"total blocks",total_blocks)
-
-                    if block_counter == total_blocks:
-                        # print("finished extracting at",i,j,"bit layer",k)
-                        end = True 
+                for arr, colour_name in [
+                (cgc_red, "red"),
+                (cgc_green, "green"),
+                (cgc_blue, "blue")
+                ]:
+                    secret, block_counter, total_blocks, last_block_bits, end = de_process_channel(
+                    arr, secret, block_counter, total_blocks, last_block_bits,
+                    colour_name, i, j, k
+                )
 
                 if end == True: 
                     break        
