@@ -1,3 +1,4 @@
+import os 
 import argparse
 from bpcs_steg.bpcs import en_bpcs, de_bpcs
 
@@ -25,10 +26,23 @@ def main():
 
     args = parser.parse_args()
 
+    # build full output path from --outdir and output argument
+    os.makedirs(args.outdir, exist_ok=True)
+    output_path = os.path.join(args.outdir, args.output)
+
     if args.command == "encode":
-        en_bpcs(args.cover, args.secret, args.output)
+        result, error = en_bpcs(args.cover, args.secret, output_path)
+        if error != "": 
+            print(f"Error: {error}")
+        else: 
+            print(f"Output saved to: {result}")
+
     elif args.command == "decode":
-        de_bpcs(args.image, args.output)
+        result, error = de_bpcs(args.image, output_path)
+        if error != "": 
+            print(f"Error: {error}")
+        else: 
+            print(f"Output saved to: {result}")
 
 if __name__ == "__main__":
     main()
