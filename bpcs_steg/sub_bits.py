@@ -1,6 +1,12 @@
 from bpcs_steg.get_bin import * 
 
-def sub_bits(r, g, b, secret_bin, bits):
+def sub_bits(
+        r: str, 
+        g: str, 
+        b: str, 
+        secret_bin: str, 
+        bits: int
+    ) -> tuple[int, int, int, str, bool]:
 
     end = False 
 
