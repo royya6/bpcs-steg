@@ -207,3 +207,20 @@ def test_roundtrip_larger_secret(tmp_path):
         result = f.read()
 
     assert result == secret_data
+
+
+# --- exceptions ---
+
+def test_decode_invalid_file_fails(tmp_path):
+    path = tmp_path / "notanimage.txt"
+    path.write_bytes(b"this is not an image")
+    extracted = str(tmp_path / "extracted")
+    error, message = de_bpcs(str(path), extracted)
+    assert error == ""
+    assert "Error" in message
+
+def test_decode_unencoded_image_fails(tmp_path):
+    cover = make_cover(tmp_path)
+    extracted = str(tmp_path / "extracted")
+    result = de_bpcs(cover, extracted)
+    assert result == ("", "Error: no embedded data found in image")
