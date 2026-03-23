@@ -1,6 +1,6 @@
 # bpcs-steg
 
-![Tests](https://github.com/kimit/bpcs-steg/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/royya6/bpcs-steg/actions/workflows/test.yml/badge.svg)
 
 A command line tool for hiding files inside images using **Bit-Plane Complexity Segmentation (BPCS)** steganography. 
 Adapted from my A-level coursework project.
