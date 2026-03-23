@@ -5,9 +5,9 @@ Adapted from my A-level coursework project.
 
 ## What is BPCS?
 
-BPCS steganography hides secret data inside the complex regions of an image's bit-planes. A colour image can be broken down into 8 bit-planes per channel (red, green, blue), where each plane represents a single bit of every pixel's colour value.
+BPCS steganography hides secret data inside the complex regions of an image's bit-planes. A colour image can be broken down into 8 bit-planes per channel (RGB).
 
-**Complex** regions of a bit-plane — those with lots of variation between 0s and 1s — are visually noisy enough that replacing them with secret data causes no perceptible change to the image. Simple (low-complexity) regions are left untouched to avoid visible distortion.
+**Complex** regions of a bit-plane are visually noisy enough that replacing them with secret data causes no perceptible change to the image. Simple (low-complexity) regions are left untouched to avoid visible distortion.
 
 This gives BPCS a significantly higher embedding capacity than simpler methods like LSB substitution, while keeping the stego image visually identical to the original.
 
@@ -21,8 +21,8 @@ python cli.py encode <cover_image> <secret_file> <output_name>
 
 ```bash
 python cli.py encode cover.jpg secret.pdf stego_output
-# saves stego_output.png to the current directory
 ```
+saves stego_output.png to the current directory
 
 ### Decode — extract a hidden file from an image
 
@@ -32,8 +32,8 @@ python cli.py decode <stego_image> <output_name>
 
 ```bash
 python cli.py decode stego_output.png extracted
-# saves extracted file with its original extension e.g. extracted.pdf
 ```
+saves extracted file with its original extension e.g. extracted.pdf
 
 ### Optional: specify an output directory
 
