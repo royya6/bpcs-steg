@@ -1,4 +1,4 @@
-def get_file_type(filename):
+def get_file_type(filename: str) -> tuple[bool, str, str, str, str]:
     f = open(filename, "rb")
     filetype = ""
     header = ""
