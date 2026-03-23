@@ -325,9 +325,9 @@ def en_bpcs(cover_filename: str, secret_filename: str, output_file: str) -> None
             if end == True: 
                 break          
         if end == True: 
-            break    
-
-    #embed info 
+            break     
+      
+    # embed info 
     last_block_bits = secret_length % 63 
     if last_block_bits == 0: 
         last_block_bits = 63 
@@ -468,33 +468,44 @@ def de_bpcs(image_file: str, output_file: str) -> str:
                 break          
         if end == True: 
             break  
+    
+     # if no data found    
+    max_possible_blocks = (height // 8) * (width // 8) * 8 * 3 
+    if total_blocks == 0 or total_blocks > max_possible_blocks:
+        return "", "Error: no embedded data found in image" 
 
     # trim padding 
-    full_blocks_bits = (total_blocks - 2) * 63  # total blocks minus info block and last block
-    secret = secret[:full_blocks_bits + last_block_bits]
-
-    secret_bin = bitstring_to_bytes(secret)
-
-    temp_path = os.path.join(os.path.dirname(output_file) or ".", "bpcs_file")
+    try: 
+        full_blocks_bits = (total_blocks - 2) * 63  # total blocks minus info block and last block
+        secret = secret[:full_blocks_bits + last_block_bits]
+        secret_bin = bitstring_to_bytes(secret)
+    except Exception: 
+        return "", "Error: could not extract data, image may not contain valid BPCS data"
     
-    f = open(temp_path, "wb")
-    f.write(secret_bin)
-    f.close()
+    # file write 
+    try: 
+        temp_path = os.path.join(os.path.dirname(output_file) or ".", "bpcs_file")
+        
+        f = open(temp_path, "wb")
+        f.write(secret_bin)
+        f.close()
 
-    file_info = get_file_type(temp_path) 
-    filetype = file_info[1]
-    if file_info[1] == "":
-        filetype = file_info[4]
-    else: 
+        file_info = get_file_type(temp_path) 
         filetype = file_info[1]
+        if file_info[1] == "":
+            filetype = file_info[4]
+        else: 
+            filetype = file_info[1]
 
-    #save to file and return 
-    output_file = open(output_file+filetype, "wb")
-    output_file.write(secret_bin)
-    output_file.close()
-    print("extraction complete")
+        #save to file and return 
+        output_file = open(output_file+filetype, "wb")
+        output_file.write(secret_bin)
+        output_file.close()
+        print("extraction complete")
 
-    return "de_bpcs_output"+filetype
+        return "de_bpcs_output"+filetype
+    except Exception as e: 
+        return "", f"Error: could not write output file — {e}"
 
 
  
