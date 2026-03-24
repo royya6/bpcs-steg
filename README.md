@@ -4,6 +4,7 @@
 
 A command line tool for hiding files inside images using **Bit-Plane Complexity Segmentation (BPCS)** steganography. 
 Adapted from my A-level coursework project.
+Based on Eiji Kawaguchi and Richard O. Eason's paper [Principle and applications of BPCS-Steganography](https://www.researchgate.net/file.PostFileLoader.html?id=53b3b80cd5a3f216068b4643&assetKey=AS%3A273551540588545%401442231177391). 
 
 ## What is BPCS?
 
